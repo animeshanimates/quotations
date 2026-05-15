@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New RK Glass &amp; Plywood Centre — Quotation System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #b8891a;
+    --gold-dark: #7e5e0f;
+    --gold-light: #faeeda;
+    --gold-mid: #EF9F27;
+    --ink: #1c160a;
+    --ink2: #3c2f10;
+    --cream: #fdf8ee;
+    --cream2: #f7f0dc;
+    --bg: #f4f1e8;
+    --surface: #ffffff;
+    --surface2: #faf8f3;
+    --border: rgba(184,137,26,0.18);
+    --border2: rgba(184,137,26,0.35);
+    --text: #1c160a;
+    --text2: #6b5830;
+    --text3: #a8926a;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(28,22,10,0.08), 0 4px 16px rgba(28,22,10,0.04);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--ink);
+    border-bottom: 2px solid var(--gold);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .rk-logo {
+    width: 40px; height: 40px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    letter-spacing: 1px; flex-shrink: 0;
+  }
+  .topbar-name { font-size: 15px; font-weight: 600; color: #fff; }
+  .topbar-sub { font-size: 11px; color: #c9a34f; margin-top: 1px; }
+  .topbar-badge {
+    margin-left: auto;
+    background: rgba(184,137,26,0.2);
+    color: #f0c060;
+    font-size: 11px; font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(184,137,26,0.3);
+  }
+
+  /* ── Layout ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .sec-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .07em; text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sec-title i { font-size: 15px; color: var(--gold); }
+
+  /* ── Form ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 11px; font-weight: 500; color: var(--text2); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 13px; padding: 8px 10px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--gold); }
+  .span2 { grid-column: span 2; }
+
+  /* ── Items table ── */
+  .tbl-wrap { overflow-x: auto; }
+  .tbl {
+    width: 100%; border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .tbl th {
+    font-size: 11px; font-weight: 600; letter-spacing: .04em;
+    color: var(--text3); text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border2);
+    white-space: nowrap;
+    background: var(--cream);
+  }
+  .tbl th.r { text-align: right; }
+  .tbl td { padding: 4px 4px; vertical-align: middle; }
+  .tbl input, .tbl select {
+    width: 100%; font-size: 12px;
+    padding: 6px 7px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+  }
+  .tbl input:focus, .tbl select:focus { border-color: var(--gold); }
+  .tbl tr:nth-child(even) td { background: rgba(250,238,218,0.25); }
+  .amt-cell {
+    font-size: 13px; font-weight: 600; color: var(--ink2);
+    text-align: right; padding-right: 8px; white-space: nowrap;
+  }
+  .del-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 16px; padding: 4px;
+    line-height: 1; border-radius: 4px;
+    transition: color .15s, background .15s;
+  }
+  .del-btn:hover { color: #c0392b; background: #fdecea; }
+  .add-item-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 12px; font-size: 13px; font-weight: 500;
+    color: var(--gold); background: none; border: none; cursor: pointer;
+    padding: 0; transition: opacity .15s;
+  }
+  .add-item-btn:hover { opacity: .75; }
+
+  /* ── Totals ── */
+  .totals-panel {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  }
+  .t-row {
+    display: flex; align-items: center; width: 300px; gap: 12px;
+  }
+  .t-row .lbl { flex: 1; font-size: 13px; color: var(--text2); }
+  .t-row .val { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; min-width: 90px; }
+  .t-divider { border: none; border-top: 1px solid var(--border2); width: 300px; margin: 4px 0; }
+  .t-grand .lbl { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .t-grand .val { font-size: 20px; font-weight: 700; color: var(--gold); }
+  .mini-sel, .mini-in {
+    font-size: 12px; padding: 4px 7px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--surface2); color: var(--text);
+    outline: none;
+  }
+  .mini-in { width: 80px; text-align: right; }
+
+  /* ── Actions ── */
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 20px; font-size: 13px; font-weight: 600;
+    border-radius: var(--radius-sm); cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--surface2); color: var(--text);
+    transition: all .15s;
+  }
+  .btn i { font-size: 16px; }
+  .btn:hover { background: var(--cream2); border-color: var(--gold); }
+  .btn-gold { background: var(--gold); color: #fff; border-color: var(--gold); }
+  .btn-gold:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
+  .btn-green { background: #1aab49; color: #fff; border-color: #1aab49; }
+  .btn-green:hover { background: #148a3a; border-color: #148a3a; }
+
+  /* ── History ── */
+  .hist-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer; margin-bottom: 6px;
+    transition: border-color .15s, background .15s;
+  }
+  .hist-item:hover { border-color: var(--gold); background: var(--gold-light); }
+  .hi-qno { font-size: 12px; font-weight: 700; color: var(--gold); min-width: 68px; }
+  .hi-nm { flex: 1; font-size: 13px; color: var(--text); }
+  .hi-tot { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .hi-dt { font-size: 11px; color: var(--text3); }
+  .empty-h { font-size: 13px; color: var(--text3); text-align: center; padding: 2rem 0; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: #f0c060;
+    font-size: 13px; font-weight: 500;
+    padding: 8px 20px; border-radius: 20px;
+    border: 1px solid var(--gold);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+    white-space: nowrap; z-index: 999;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .topbar { padding: 0 1rem; }
+    .topbar-badge { display: none; }
+    .main { padding: 1rem 1rem 4rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .span2 { grid-column: span 1; }
+    .t-row, .t-divider { width: 100%; }
+    .totals-panel { align-items: stretch; }
+    .actions { flex-direction: column; }
+    .btn { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <div class="rk-logo">RK</div>
+  <div>
+    <div class="topbar-name">New RK Glass &amp; Plywood Centre</div>
+    <div class="topbar-sub">Manduwadih, Varanasi &nbsp;·&nbsp; Plywood • Glass • Hardware • Interior</div>
+  </div>
+  <div class="topbar-badge"><i class="ti ti-certificate" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Sales Quotation System</div>
+</header>
+
+<div id="toast"></div>
+
+<main class="main">
+
+  <!-- Quote details -->
+  <div class="card">
+    <div class="sec-title"><i class="ti ti-file-invoice"></i>Quote details</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Quote number</label>
+        <input type="text" id="qNo" value="RK-1023">
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="qDate">
+      </div>
+      <div class="form-group">
+        <label>Customer name</label>
+        <input type="text" id="cName" placeholder="e.g. Rahul Sharma">
+      </div>
+      <div class="form-group">
+        <label>Phone number</label>
+        <input type="tel" id="cPhone" placeholder="+91 98765 43210">
+      </div>
+      <div class="form-group span2">
+        <label>Site / project address</label>
+        <input type="text" id="cAddr" placeholder="e.g. Plot 45, Sunderpur, Varanasi">
+      </div>
+      <div class="form-group span2">
+        <label>Remarks / notes</label>
+        <input type="text" id="cRem" placeholder="e.g. Delivery required by 20th May">
+      </div>
+    </div>
+  </div>
+
+  <!-- Items -->
+  <div class="card">
+    <div class="sec-title"><i class="ti ti-package"></i>Items</div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="iTable">
+        <thead>
+          <tr>
+            <th style="width:26%">Item name</th>
+            <th style="width:15%">Category</th>
+            <th style="width:8%">Qty</th>
+            <th style="width:11%">Unit</th>
+            <th style="width:14%">Rate (Rs.)</th>
+            <th style="width:16%" class="r">Amount (Rs.)</th>
+            <th style="width:4%"></th>
+          </tr>
+        </thead>
+        <tbody id="iBody"></tbody>
+      </table>
+    </div>
+    <button class="add-item-btn" onclick="addRow()">
+      <i class="ti ti-plus"></i> Add item
+    </button>
+  </div>
+
+  <!-- Summary -->
+  <div class="card">
+    <div class="sec-title"><i class="ti ti-calculator"></i>Summary</div>
+    <div class="totals-panel">
+      <div class="t-row">
+        <span class="lbl">Subtotal</span>
+        <span class="val" id="subV">Rs. 0</span>
+      </div>
+      <div class="t-row">
+        <span class="lbl">GST rate</span>
+        <span class="val">
+          <select class="mini-sel" id="gstR" onchange="calc()">
+            <option value="0">0%</option>
+            <option value="5">5%</option>
+            <option value="12">12%</option>
+            <option value="18" selected>18%</option>
+            <option value="28">28%</option>
+          </select>
+        </span>
+      </div>
+      <div class="t-row">
+        <span class="lbl">GST amount</span>
+        <span class="val" id="gstV">Rs. 0</span>
+      </div>
+      <div class="t-row">
+        <span class="lbl">Discount (Rs.)</span>
+        <span class="val">
+          <input type="number" class="mini-in" id="discV" value="0" min="0" oninput="calc()">
+        </span>
+      </div>
+      <hr class="t-divider">
+      <div class="t-row t-grand">
+        <span class="lbl">Grand total</span>
+        <span class="val" id="grandV">Rs. 0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="card">
+    <div class="sec-title"><i class="ti ti-send"></i>Actions</div>
+    <div class="actions">
+      <button class="btn btn-gold" onclick="genPDF()">
+        <i class="ti ti-file-type-pdf"></i> Generate PDF
+      </button>
+      <button class="btn btn-green" onclick="waShare()">
+        <i class="ti ti-brand-whatsapp"></i> Share on WhatsApp
+      </button>
+      <button class="btn" onclick="saveQ()">
+        <i class="ti ti-device-floppy"></i> Save quote
+      </button>
+      <button class="btn" onclick="clearForm()">
+        <i class="ti ti-refresh"></i> New quote
+      </button>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="sec-title"><i class="ti ti-history"></i>Customer history <span style="font-size:10px;color:var(--text3);margin-left:4px;font-weight:400;text-transform:none;letter-spacing:0">(click any row to reload)</span></div>
+    <div id="histList">
+      <div class="empty-h">No saved quotes yet. Fill in a quote and click "Save quote".</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const CATS = ['Plywood','Glass','Hardware','Interior Accessories','Paint','Adhesive','Ceiling','Laminate','Other'];
+  const UNITS = ['Sheet','Sq Ft','Pc','Meter','Running Ft','Roll','Kg','Bag','Box','Set'];
+  let qNum = 1023;
+  let history = [];
+
+  document.getElementById('qDate').valueAsDate = new Date();
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('en-IN');
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  function addRow(it = {}) {
+    const tbody = document.getElementById('iBody');
+    const tr = document.createElement('tr');
+    const uid = 'uid' + Date.now() + Math.random().toString(36).slice(2);
+    tr.dataset.uid = uid;
+
+    const catOpts = CATS.map(c =>
+      `<option${(it.cat || 'Plywood') === c ? ' selected' : ''}>${c}</option>`
+    ).join('');
+    const unitOpts = UNITS.map(u =>
+      `<option${(it.unit || 'Sheet') === u ? ' selected' : ''}>${u}</option>`
+    ).join('');
+
+    tr.innerHTML = `
+      <td><input type="text" placeholder="Item name" value="${escHtml(it.name || '')}" oninput="calc()"></td>
+      <td><select onchange="calc()">${catOpts}</select></td>
+      <td><input type="number" min="0" step="0.5" value="${it.qty || 1}" oninput="calc()"></td>
+      <td><select onchange="calc()">${unitOpts}</select></td>
+      <td><input type="number" min="0" step="1" value="${it.rate || ''}" placeholder="0" oninput="calc()"></td>
+      <td class="amt-cell" id="${uid}">Rs. 0</td>
+      <td><button class="del-btn" onclick="this.closest('tr').remove();calc()" title="Remove item"><i class="ti ti-x"></i></button></td>`;
+
+    tbody.appendChild(tr);
+    calc();
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function calc() {
+    let sub = 0;
+    document.querySelectorAll('#iBody tr').forEach(tr => {
+      const nums = tr.querySelectorAll('input[type="number"]');
+      const qty = parseFloat(nums[0].value) || 0;
+      const rate = parseFloat(nums[1].value) || 0;
+      const amt = qty * rate;
+      const cell = document.getElementById(tr.dataset.uid);
+      if (cell) cell.textContent = 'Rs. ' + fmt(amt);
+      sub += amt;
+    });
+    const gstPct = parseFloat(document.getElementById('gstR').value) / 100;
+    const gst = sub * gstPct;
+    const disc = parseFloat(document.getElementById('discV').value) || 0;
+    const grand = Math.max(0, sub + gst - disc);
+
+    document.getElementById('subV').textContent = 'Rs. ' + fmt(sub);
+    document.getElementById('gstV').textContent = 'Rs. ' + fmt(gst);
+    document.getElementById('grandV').textContent = 'Rs. ' + fmt(grand);
+  }
+
+  function getData() {
+    const items = [];
+    document.querySelectorAll('#iBody tr').forEach(tr => {
+      const texts = tr.querySelectorAll('input[type="text"]');
+      const nums = tr.querySelectorAll('input[type="number"]');
+      const sels = tr.querySelectorAll('select');
+      const name = texts[0] ? texts[0].value : '';
+      const qty = parseFloat(nums[0].value) || 0;
+      const rate = parseFloat(nums[1].value) || 0;
+      items.push({ name: name || '-', cat: sels[0].value, qty, unit: sels[1].value, rate, amt: qty * rate });
+    });
+    const sub = items.reduce((s, i) => s + i.amt, 0);
+    const gstPct = parseFloat(document.getElementById('gstR').value);
+    const gst = sub * gstPct / 100;
+    const disc = parseFloat(document.getElementById('discV').value) || 0;
+    const grand = Math.max(0, sub + gst - disc);
+    return {
+      qNo: document.getElementById('qNo').value,
+      date: document.getElementById('qDate').value,
+      cName: document.getElementById('cName').value || 'Customer',
+      cPhone: document.getElementById('cPhone').value,
+      cAddr: document.getElementById('cAddr').value,
+      cRem: document.getElementById('cRem').value,
+      items, sub, gstPct, gst, disc, grand
+    };
+  }
+
+  function genPDF() {
+    if (typeof window.jspdf === 'undefined') {
+      toast('PDF library still loading, please try again.');
+      return;
+    }
+    const d = getData();
+    const validItems = d.items.filter(i => i.name && i.name !== '-');
+    if (!validItems.length) { toast('Add at least one item first.'); return; }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const W = 210, H = 297;
+
+    /* ── Header band ── */
+    doc.setFillColor(28, 22, 10);
+    doc.rect(0, 0, W, 46, 'F');
+    doc.setFillColor(184, 137, 26);
+    doc.rect(0, 46, W, 1.5, 'F');
+
+    /* RK circle */
+    doc.setFillColor(184, 137, 26);
+    doc.circle(23, 23, 11, 'F');
+    doc.setTextColor(28, 22, 10);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text('RK', 23, 26.5, { align: 'center' });
+
+    /* Shop name */
+    doc.setTextColor(184, 137, 26);
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NEW RK GLASS & PLYWOOD CENTRE', 39, 17);
+
+    doc.setTextColor(210, 190, 140);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('Manduwadih, Varanasi  |  Quality Plywood  Glass  Hardware  Interior Accessories', 39, 25);
+    doc.text('"Trusted Service & Fair Pricing"', 39, 32);
+
+    /* Quote label */
+    doc.setTextColor(184, 137, 26);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('SALES QUOTATION', W - 14, 16, { align: 'right' });
+    doc.setTextColor(210, 190, 140);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('Quote No: ' + d.qNo, W - 14, 23, { align: 'right' });
+    doc.text('Date: ' + d.date, W - 14, 30, { align: 'right' });
+
+    /* Customer box */
+    doc.setFillColor(253, 248, 238);
+    doc.roundedRect(12, 52, W - 24, 33, 2, 2, 'F');
+    doc.setDrawColor(184, 137, 26);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(12, 52, W - 24, 33, 2, 2, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140, 105, 40);
+    doc.text('BILL TO', 18, 59);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(28, 22, 10);
+    doc.text(d.cName, 18, 67);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(60, 50, 25);
+    let cy = 74;
+    if (d.cPhone) { doc.text('Phone: ' + d.cPhone, 18, cy); cy += 6; }
+    if (d.cAddr)  { doc.text('Site: '  + d.cAddr,  18, cy); }
+
+    doc.setTextColor(130, 100, 40);
+    doc.setFontSize(8);
+    doc.text('Valid for 15 days from date of issue', W - 18, 60, { align: 'right' });
+
+    /* Items table */
+    doc.autoTable({
+      startY: 91,
+      head: [['#', 'Item Name', 'Category', 'Qty', 'Unit', 'Rate', 'Amount']],
+      body: validItems.map((it, i) => [
+        i + 1, it.name, it.cat, it.qty, it.unit,
+        'Rs. ' + fmt(it.rate),
+        'Rs. ' + fmt(it.amt)
+      ]),
+      theme: 'grid',
+      headStyles: { fillColor: [28, 22, 10], textColor: [184, 137, 26], fontStyle: 'bold', fontSize: 8.5 },
+      bodyStyles: { fontSize: 8.5, textColor: [28, 22, 10] },
+      alternateRowStyles: { fillColor: [253, 249, 238] },
+      columnStyles: {
+        0: { cellWidth: 9,  halign: 'center' },
+        1: { cellWidth: 52 },
+        2: { cellWidth: 30 },
+        3: { cellWidth: 12, halign: 'center' },
+        4: { cellWidth: 18, halign: 'center' },
+        5: { cellWidth: 26, halign: 'right' },
+        6: { cellWidth: 29, halign: 'right', fontStyle: 'bold' }
+      },
+      margin: { left: 12, right: 12 }
+    });
+
+    let y = doc.lastAutoTable.finalY + 8;
+
+    /* Totals box */
+    const bx = W - 12 - 76;
+    const bh = d.disc > 0 ? 50 : 43;
+    doc.setFillColor(253, 248, 238);
+    doc.roundedRect(bx, y, 76, bh, 2, 2, 'F');
+    doc.setDrawColor(184, 137, 26);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(bx, y, 76, bh, 2, 2, 'S');
+
+    let ty2 = y + 10;
+    const tLine = (lbl, val, bold, gold) => {
+      doc.setFont('helvetica', bold ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(...(bold ? [28, 22, 10] : [90, 75, 40]));
+      doc.text(lbl, bx + 6, ty2);
+      if (gold) doc.setTextColor(184, 137, 26);
+      doc.text(val, bx + 72, ty2, { align: 'right' });
+      ty2 += 7;
+    };
+    tLine('Subtotal', 'Rs. ' + fmt(d.sub));
+    tLine('GST (' + d.gstPct + '%)', 'Rs. ' + fmt(d.gst));
+    if (d.disc > 0) tLine('Discount', '- Rs. ' + fmt(d.disc));
+    doc.setDrawColor(184, 137, 26);
+    doc.line(bx + 6, ty2 - 2, bx + 70, ty2 - 2);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(28, 22, 10);
+    doc.text('GRAND TOTAL', bx + 6, ty2 + 5);
+    doc.setTextColor(184, 137, 26);
+    doc.setFontSize(13);
+    doc.text('Rs. ' + fmt(d.grand), bx + 72, ty2 + 6, { align: 'right' });
+
+    /* Remarks */
+    if (d.cRem) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(90, 70, 35);
+      doc.text('Remarks: ' + d.cRem, 12, y + bh + 8);
+    }
+
+    /* Signature section */
+    const sigY = Math.min(y + bh + (d.cRem ? 18 : 10) + 22, H - 50);
+
+    doc.setDrawColor(180, 155, 90);
+    doc.setLineWidth(0.3);
+    doc.line(12, sigY, 72, sigY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 80, 40);
+    doc.text('Customer Signature', 12, sigY + 5);
+
+    doc.line(W - 82, sigY, W - 12, sigY);
+    doc.text('Authorised Signatory', W - 82, sigY + 5);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(28, 22, 10);
+    doc.text('New RK Glass & Plywood Centre', W - 82, sigY + 11);
+
+    /* Stamp box */
+    doc.setDrawColor(184, 137, 26);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(W / 2 - 23, sigY - 22, 46, 22, 2, 2, 'S');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(160, 120, 30);
+    doc.text('OFFICIAL STAMP', W / 2, sigY - 12, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('New RK Centre, Varanasi', W / 2, sigY - 5, { align: 'center' });
+
+    /* Footer */
+    doc.setFillColor(28, 22, 10);
+    doc.rect(0, H - 22, W, 22, 'F');
+    doc.setFillColor(184, 137, 26);
+    doc.rect(0, H - 22, W, 1, 'F');
+    doc.setTextColor(210, 190, 140);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('New RK Glass & Plywood Centre  |  Manduwadih, Varanasi', W / 2, H - 12, { align: 'center' });
+    doc.setTextColor(184, 137, 26);
+    doc.text('"Trusted Service & Fair Pricing"', W / 2, H - 6, { align: 'center' });
+
+    const fn = d.qNo.replace('RK-', '') + '-' + d.cName.replace(/\s+/g, '');
+    doc.save('RK-Quote-' + fn + '.pdf');
+    toast('PDF saved: RK-Quote-' + fn + '.pdf');
+  }
+
+  function waShare() {
+    const d = getData();
+    const lines = d.items
+      .filter(i => i.name && i.name !== '-')
+      .map(i => `  • ${i.name} (${i.qty} ${i.unit}) = Rs. ${fmt(i.amt)}`)
+      .join('\n');
+    const msg =
+      `*New RK Glass & Plywood Centre*\n` +
+      `Manduwadih, Varanasi\n\n` +
+      `*Quotation ${d.qNo}*\n` +
+      `Date: ${d.date}\n` +
+      `Customer: ${d.cName}` +
+      (d.cPhone ? `\nPhone: ${d.cPhone}` : '') + '\n\n' +
+      `*Items:*\n${lines}\n\n` +
+      `Subtotal: Rs. ${fmt(d.sub)}\n` +
+      `GST (${d.gstPct}%): Rs. ${fmt(d.gst)}\n` +
+      (d.disc ? `Discount: Rs. ${fmt(d.disc)}\n` : '') +
+      `\n*Grand Total: Rs. ${fmt(d.grand)}*\n\n` +
+      `_"Trusted Service & Fair Pricing"_`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  function saveQ() {
+    const d = getData();
+    if (d.cName === 'Customer') { toast('Please enter a customer name first.'); return; }
+    history.unshift({ ...d, savedAt: new Date().toLocaleDateString('en-IN') });
+    qNum++;
+    document.getElementById('qNo').value = 'RK-' + qNum;
+    renderHistory();
+    toast('Quote saved to history!');
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('histList');
+    if (!history.length) {
+      el.innerHTML = '<div class="empty-h">No saved quotes yet. Fill in a quote and click "Save quote".</div>';
+      return;
+    }
+    el.innerHTML = history.map((q, i) => `
+      <div class="hist-item" onclick="loadQ(${i})">
+        <span class="hi-qno">${q.qNo}</span>
+        <span class="hi-nm">${escHtml(q.cName)}</span>
+        <span class="hi-tot">Rs. ${fmt(q.grand)}</span>
+        <span class="hi-dt">${q.savedAt}</span>
+        <i class="ti ti-chevron-right" style="font-size:14px;color:#a8926a;margin-left:auto"></i>
+      </div>`).join('');
+  }
+
+  function loadQ(i) {
+    const q = history[i];
+    document.getElementById('qNo').value  = q.qNo;
+    document.getElementById('qDate').value = q.date;
+    document.getElementById('cName').value = q.cName;
+    document.getElementById('cPhone').value = q.cPhone || '';
+    document.getElementById('cAddr').value  = q.cAddr  || '';
+    document.getElementById('cRem').value   = q.cRem   || '';
+    document.getElementById('gstR').value   = q.gstPct;
+    document.getElementById('discV').value  = q.disc   || 0;
+    document.getElementById('iBody').innerHTML = '';
+    q.items.forEach(addRow);
+    calc();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast('Quote ' + q.qNo + ' loaded!');
+  }
+
+  function clearForm() {
+    qNum++;
+    document.getElementById('qNo').value = 'RK-' + qNum;
+    document.getElementById('qDate').valueAsDate = new Date();
+    ['cName','cPhone','cAddr','cRem'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('gstR').value  = '18';
+    document.getElementById('discV').value = '0';
+    document.getElementById('iBody').innerHTML = '';
+    addRow();
+    calc();
+  }
+
+  /* Seed with sample items */
+  addRow({ name: 'Greenply Plywood 18mm', cat: 'Plywood',   qty: 10, unit: 'Sheet',  rate: 2200 });
+  addRow({ name: 'Door Handle Premium',   cat: 'Hardware',  qty: 4,  unit: 'Pc',     rate: 550  });
+  addRow({ name: 'Glass Panel 5mm',       cat: 'Glass',     qty: 2,  unit: 'Sq Ft',  rate: 800  });
+  calc();
+</script>
+</body>
+</html>
